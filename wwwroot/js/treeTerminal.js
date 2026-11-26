@@ -60,11 +60,14 @@
             // Click hit-testing inside the terminal
             canvas.addEventListener('click', (e) => {
                 if (container) container.focus();
-                if (!isAudioPlaying) {
-                    this.playAudio();
+
+                if (!dotNetRef) {
+                    if (!isAudioPlaying && !isMuted) {
+                        this.playAudio();
+                    }
+                    return;
                 }
 
-                if (!dotNetRef) return;
                 const col = Math.floor(e.clientX / cellW);
                 const row = Math.floor(e.clientY / cellH);
 
@@ -73,11 +76,16 @@
                     if (action === 'music') {
                         const muted = this.toggleMute();
                         dotNetRef.invokeMethod('SyncAudioMuted', muted);
-                    } else if (action === 'crt') {
-                        const crt = this.toggleCrt();
-                        dotNetRef.invokeMethod('SyncCrtState', crt);
-                    } else if (action === 'fullscreen') {
-                        this.toggleFullscreen();
+                    } else {
+                        if (!isAudioPlaying && !isMuted) {
+                            this.playAudio();
+                        }
+                        if (action === 'crt') {
+                            const crt = this.toggleCrt();
+                            dotNetRef.invokeMethod('SyncCrtState', crt);
+                        } else if (action === 'fullscreen') {
+                            this.toggleFullscreen();
+                        }
                     }
                 } catch (err) {
                     console.error("Click handling error:", err);
@@ -99,9 +107,16 @@
             lastTime = performance.now();
             requestAnimationFrame((t) => this.loop(t));
 
+            // Try immediate autoplay (succeeds if browser policy or prior interaction allows it)
+            this.playAudio();
+
             // Setup audio on first gesture (keyboard/touch/click)
-            const startAudioOnGesture = () => {
-                if (!isAudioPlaying) {
+            const startAudioOnGesture = (e) => {
+                // Let HandleKeyDown -> toggleMute handle 'M' so it doesn't race and mute on first press
+                if (e && e.type === 'keydown' && e.key && e.key.toLowerCase() === 'm') {
+                    return;
+                }
+                if (!isAudioPlaying && !isMuted) {
                     this.playAudio();
                 }
                 window.removeEventListener('click', startAudioOnGesture);
@@ -220,10 +235,14 @@
         },
 
         playAudio: function () {
-            if (audio) {
-                audio.play().then(() => {
+            if (!audio) return;
+            audio.muted = isMuted;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
                     isAudioPlaying = true;
                 }).catch(e => {
+                    isAudioPlaying = false;
                     console.log("Audio play postponed until gesture:", e);
                 });
             }
@@ -237,15 +256,17 @@
         },
 
         toggleMute: function () {
-            if (audio) {
-                isMuted = !isMuted;
-                audio.muted = isMuted;
-                if (!isMuted && !isAudioPlaying) {
-                    this.playAudio();
-                }
-                return isMuted;
+            if (!audio) return false;
+            // If autoplay was blocked and audio hasn't started yet, start it unmuted on the first press
+            if (audio.paused) {
+                isMuted = false;
+                audio.muted = false;
+                this.playAudio();
+                return false;
             }
-            return false;
+            isMuted = !isMuted;
+            audio.muted = isMuted;
+            return isMuted;
         },
 
         toggleCrt: function () {
