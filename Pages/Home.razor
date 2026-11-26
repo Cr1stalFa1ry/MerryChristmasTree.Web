@@ -1,0 +1,145 @@
+﻿@page "/"
+@using MerryChristmasTree.Web.Services
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>🎄 Merry Christmas Tree</PageTitle>
+
+<div class="app-container @(_isCrtActive ? "crt-active" : "")"
+     @onkeydown="HandleKeyDown"
+     tabindex="0"
+     autofocus
+     id="main-container">
+
+    <!-- Canvas fills 100% of the browser window area -->
+    <canvas id="treeCanvas" @ref="_canvasRef"></canvas>
+
+    <!-- Hidden native audio element -->
+    <audio id="bg-audio" loop src="Wham_Last_Christmas.mp3" preload="auto" @ref="_audioRef"></audio>
+</div>
+
+@code {
+    private ElementReference _canvasRef;
+    private ElementReference _audioRef;
+    private DotNetObjectReference<Home>? _dotNetRef;
+    private readonly TreeEngine _engine = new();
+
+    private bool _isCrtActive = false;
+
+    protected override void OnInitialized()
+    {
+        _engine.Initialize(TreeEngine.DefaultWidth, TreeEngine.DefaultHeight);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync(
+                "treeTerminal.init",
+                _canvasRef,
+                _audioRef,
+                _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public byte[] OnFrame(float dt, int width, int height)
+    {
+        return _engine.Tick(dt, width, height);
+    }
+
+    [JSInvokable]
+    public bool OnCanvasHover(int col, int row)
+    {
+        return _engine.UpdateHover(col, row);
+    }
+
+    [JSInvokable]
+    public string? OnCanvasClick(int col, int row)
+    {
+        return _engine.HandleClick(col, row);
+    }
+
+    [JSInvokable]
+    public void SyncAudioMuted(bool muted)
+    {
+        _engine.IsAudioMuted = muted;
+    }
+
+    [JSInvokable]
+    public void SyncCrtState(bool crtActive)
+    {
+        _isCrtActive = crtActive;
+        _engine.IsCrtActive = crtActive;
+        StateHasChanged();
+    }
+
+    private async Task ToggleAudio()
+    {
+        bool muted = await JS.InvokeAsync<bool>("treeTerminal.toggleMute");
+        _engine.IsAudioMuted = muted;
+    }
+
+    private async Task ToggleCrt()
+    {
+        bool crt = await JS.InvokeAsync<bool>("treeTerminal.toggleCrt");
+        _isCrtActive = crt;
+        _engine.IsCrtActive = crt;
+    }
+
+    private async Task ToggleFullscreen()
+    {
+        await JS.InvokeVoidAsync("treeTerminal.toggleFullscreen");
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key.ToLowerInvariant())
+        {
+            case " ":
+                _engine.TogglePause();
+                break;
+            case "r":
+                _engine.RestartGrowth();
+                break;
+            case "m":
+                _ = ToggleAudio();
+                break;
+            case "b":
+                _engine.ToggleBanner();
+                break;
+            case "h":
+                _engine.ToggleHud();
+                break;
+            case "a":
+            case "arrowleft":
+                _engine.AdjustWind(-3.5f);
+                break;
+            case "d":
+            case "arrowright":
+                _engine.AdjustWind(3.5f);
+                break;
+            case "+":
+            case "=":
+                _engine.AdjustSnowDensity(0.25f);
+                break;
+            case "-":
+            case "_":
+                _engine.AdjustSnowDensity(-0.25f);
+                break;
+            case "c":
+                _ = ToggleCrt();
+                break;
+            case "f":
+                _ = ToggleFullscreen();
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
+}

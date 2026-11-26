@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>🎄 Merry Christmas Tree</title>
+    <base href="/" />
+    <link href="_framework/dotnet.bapxzmgw97.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-QxlRSKxcWSws5eJhiJ5dPlaNdB6e4OFQIxG7yl/9egM=" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/terminal.css" />
+    <script type="importmap">{
+  "imports": {
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.lib.module.js": "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.p2tktok1gl.lib.module.js",
+    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.958z1vx7fr.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.bapxzmgw97.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.rjbmzc4jpg.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.r2kbxkuujc.js",
+    "./js/treeTerminal.js": "./js/treeTerminal.wuoqqz956t.js"
+  },
+  "scopes": {},
+  "integrity": {
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.lib.module.js": "sha256-zxLr586Tmz/HWimrP6qI3540WXztZKYKH87mNuLlbwM=",
+    "./_framework/Microsoft.DotNet.HotReload.WebAssembly.Browser.p2tktok1gl.lib.module.js": "sha256-zxLr586Tmz/HWimrP6qI3540WXztZKYKH87mNuLlbwM=",
+    "./_framework/blazor.webassembly.958z1vx7fr.js": "sha256-A59Tr9HqEhHMu8kU7kruLI9ayw5MRS6Lvc6z7jCbghk=",
+    "./_framework/blazor.webassembly.js": "sha256-A59Tr9HqEhHMu8kU7kruLI9ayw5MRS6Lvc6z7jCbghk=",
+    "./_framework/dotnet.bapxzmgw97.js": "sha256-QxlRSKxcWSws5eJhiJ5dPlaNdB6e4OFQIxG7yl/9egM=",
+    "./_framework/dotnet.js": "sha256-QxlRSKxcWSws5eJhiJ5dPlaNdB6e4OFQIxG7yl/9egM=",
+    "./_framework/dotnet.native.js": "sha256-95bE510j3EADMNW2OKa/DMBhu8N632dl5HGeBfXNEf4=",
+    "./_framework/dotnet.native.rjbmzc4jpg.js": "sha256-95bE510j3EADMNW2OKa/DMBhu8N632dl5HGeBfXNEf4=",
+    "./_framework/dotnet.runtime.js": "sha256-YyudibIWETMKrLb+nAZdJ+xDY7HY6BWf6s32UAdcvCU=",
+    "./_framework/dotnet.runtime.r2kbxkuujc.js": "sha256-YyudibIWETMKrLb+nAZdJ+xDY7HY6BWf6s32UAdcvCU=",
+    "./js/treeTerminal.js": "sha256-qGm1tzLrAIfT0dqvOxovH4NCsS99ZWAGtbke7if7XW8=",
+    "./js/treeTerminal.wuoqqz956t.js": "sha256-qGm1tzLrAIfT0dqvOxovH4NCsS99ZWAGtbke7if7XW8="
+  }
+}</script>
+    <style>
+        body {
+            background-color: #030508;
+            color: #ffd700;
+        }
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            gap: 16px;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top-color: #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div>🎄 Загрузка рождественской ёлки (.NET WebAssembly)...</div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        Произошла ошибка.
+        <a href="." class="reload">Перезагрузить</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+    <script src="js/treeTerminal.js"></script>
+    <script src="_framework/blazor.webassembly.958z1vx7fr.js"></script>
+</body>
+
+</html>
