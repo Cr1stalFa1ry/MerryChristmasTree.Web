@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MerryChristmasTree.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58114980788942f94f8eada82ca42466031b1cb3")]
 [assembly: System.Reflection.AssemblyProductAttribute("MerryChristmasTree.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MerryChristmasTree.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

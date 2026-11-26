@@ -110,18 +110,28 @@
             // Try immediate autoplay (succeeds if browser policy or prior interaction allows it)
             this.playAudio();
 
-            // Setup audio on first gesture (keyboard/touch/click)
+            // Setup audio on first valid user gesture (keyboard/touch/click)
             const startAudioOnGesture = (e) => {
                 // Let HandleKeyDown -> toggleMute handle 'M' so it doesn't race and mute on first press
                 if (e && e.type === 'keydown' && e.key && e.key.toLowerCase() === 'm') {
                     return;
                 }
-                if (!isAudioPlaying && !isMuted) {
-                    this.playAudio();
+                if (isAudioPlaying || isMuted || !audio) {
+                    return;
                 }
-                window.removeEventListener('click', startAudioOnGesture);
-                window.removeEventListener('keydown', startAudioOnGesture);
-                window.removeEventListener('touchstart', startAudioOnGesture);
+                audio.muted = false;
+                const p = audio.play();
+                if (p !== undefined) {
+                    p.then(() => {
+                        isAudioPlaying = true;
+                        window.removeEventListener('click', startAudioOnGesture);
+                        window.removeEventListener('keydown', startAudioOnGesture);
+                        window.removeEventListener('touchstart', startAudioOnGesture);
+                    }).catch(() => {
+                        // Non-activation key (e.g. Shift/Cmd/Tab) or blocked: keep listeners attached
+                        isAudioPlaying = false;
+                    });
+                }
             };
             window.addEventListener('click', startAudioOnGesture);
             window.addEventListener('keydown', startAudioOnGesture);
@@ -245,6 +255,20 @@
                     isAudioPlaying = false;
                     console.log("Audio play postponed until gesture:", e);
                 });
+            }
+        },
+
+        tryAutoPlay: async function () {
+            if (!audio) return false;
+            isMuted = false;
+            audio.muted = false;
+            try {
+                await audio.play();
+                isAudioPlaying = true;
+                return true;
+            } catch {
+                isAudioPlaying = false;
+                return false;
             }
         },
 

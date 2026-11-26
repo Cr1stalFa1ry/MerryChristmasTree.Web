@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "MerryChristmasTree.Web",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-IC31UUOSJ8ePsdLsTrsRuaIgKd6mEmcRxWuLpLvEX+g=",
+    "hash": "sha256-5auNy+AQRpiI+HqnLceK+9teEguoj8KYVvyFXee6gR8=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.rjbmzc4jpg.js"
@@ -1242,16 +1242,16 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "MerryChristmasTree.Web.wasm",
-        "name": "MerryChristmasTree.Web.9fevawz9qw.wasm",
-        "hash": "sha256-xZREXepM0HY0g2JDql2k+tIWgz0cMLe8BEEpl2vW8qg=",
+        "name": "MerryChristmasTree.Web.8nbz9sr74l.wasm",
+        "hash": "sha256-TNFzLweshN/aLSbUmPGFgm5yg3qLQWEr0VpJJSWzFAo=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "MerryChristmasTree.Web.pdb",
-        "name": "MerryChristmasTree.Web.1xsdnfkv1h.pdb",
-        "hash": "sha256-peYC4jpg5fB4TpTy68j19OQ3ZljqPEJCMS1tpEJuJHM=",
+        "name": "MerryChristmasTree.Web.vt5ya7cka6.pdb",
+        "hash": "sha256-/Sc5tGTYUXfsg+wVf2JjcLA+dAmKUvl1M7virNpqq8k=",
         "cache": "force-cache"
       }
     ],

@@ -16,7 +16,7 @@
 
     @if (_isConsoleIntroActive)
     {
-        <div class="console-intro @(_isFadingOut ? "fading-out" : "")" @onclick="SkipConsoleIntro">
+        <div class="console-intro @(_isFadingOut ? "fading-out" : "")" @onclick="SkipConsoleIntroAsync">
             <div class="console-window">
                 <div class="console-titlebar">
                     <div class="console-dots">
@@ -25,7 +25,7 @@
                         <span class="console-dot green"></span>
                     </div>
                     <span>northpole-shell — bash</span>
-                    <span>80×24</span>
+                    <span></span>
                 </div>
                 <div class="console-body">
                     <div>
@@ -40,13 +40,18 @@
                                 <div><span class="console-ok">[OK]</span> Initializing festive ASCII renderer...</div>
                                 @if (_showSecondLog)
                                 {
-                                    <div><span class="console-ok">[OK]</span> Starting MerryChristmasTree.Web... <span class="console-cursor"></span></div>
+                                    <div><span class="console-ok">[OK]</span> Starting MerryChristmasTree.Web...</div>
                                 }
                             </div>
                         }
-                    </div>
 
-                    <div class="console-hint">Нажмите Enter или кликните, чтобы пропустить</div>
+                        @if (_waitingForLaunchGesture)
+                        {
+                            <div class="console-ready-prompt">
+                                &gt; Press [ENTER] <span class="console-cursor"></span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -67,9 +72,11 @@
 
     private bool _isCrtActive = false;
     private bool _isConsoleIntroActive = true;
+    private bool _isTreeRenderEnabled = false;
     private bool _isFadingOut = false;
     private bool _commandSubmitted = false;
     private bool _showSecondLog = false;
+    private bool _waitingForLaunchGesture = false;
     private string _typedCommand = "";
 
     protected override void OnInitialized()
@@ -97,25 +104,35 @@
     {
         try
         {
-            await Task.Delay(250, ct);
+            await Task.Delay(400, ct);
 
             for (int i = 1; i <= IntroCommand.Length; i++)
             {
                 _typedCommand = IntroCommand[..i];
                 StateHasChanged();
-                await Task.Delay(75, ct);
+                await Task.Delay(155, ct);
             }
 
-            await Task.Delay(260, ct);
+            await Task.Delay(450, ct);
             _commandSubmitted = true;
             StateHasChanged();
 
-            await Task.Delay(420, ct);
+            await Task.Delay(550, ct);
             _showSecondLog = true;
             StateHasChanged();
 
-            await Task.Delay(550, ct);
-            await FinishConsoleIntroAsync(ct);
+            await Task.Delay(500, ct);
+
+            bool audioStarted = await JS.InvokeAsync<bool>("treeTerminal.tryAutoPlay");
+            if (audioStarted)
+            {
+                await FinishConsoleIntroAsync(ct);
+            }
+            else
+            {
+                _waitingForLaunchGesture = true;
+                StateHasChanged();
+            }
         }
         catch (TaskCanceledException)
         {
@@ -128,6 +145,7 @@
         if (!_isConsoleIntroActive || _isFadingOut)
             return;
 
+        _isTreeRenderEnabled = true;
         _isFadingOut = true;
         StateHasChanged();
 
@@ -145,21 +163,25 @@
         StateHasChanged();
     }
 
-    private void SkipConsoleIntro()
+    private async Task SkipConsoleIntroAsync()
     {
         if (!_isConsoleIntroActive)
             return;
 
         _introCts?.Cancel();
+        _isTreeRenderEnabled = true;
         _isConsoleIntroActive = false;
         _isFadingOut = false;
+        _waitingForLaunchGesture = false;
         StateHasChanged();
+
+        await JS.InvokeVoidAsync("treeTerminal.playAudio");
     }
 
     [JSInvokable]
     public byte[]? OnFrame(float dt, int width, int height)
     {
-        if (_isConsoleIntroActive)
+        if (!_isTreeRenderEnabled)
             return null;
 
         return _engine.Tick(dt, width, height);
@@ -209,11 +231,11 @@
         await JS.InvokeVoidAsync("treeTerminal.toggleFullscreen");
     }
 
-    private void HandleKeyDown(KeyboardEventArgs e)
+    private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (_isConsoleIntroActive && e.Key is "Enter" or " ")
+        if (_isConsoleIntroActive && (_waitingForLaunchGesture || e.Key is "Enter" or " "))
         {
-            SkipConsoleIntro();
+            await SkipConsoleIntroAsync();
             return;
         }
 

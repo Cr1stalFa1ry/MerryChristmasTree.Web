@@ -8,7 +8,7 @@
     <base href="/" />
     <link rel="preload" id="webassembly" />
     <link rel="stylesheet" href="css/app.css" />
-    <link rel="stylesheet" href="css/terminal.css" />
+    <link rel="stylesheet" href="css/terminal.css?v=3" />
     <script type="importmap"></script>
     <style>
         body {
@@ -17,221 +17,28 @@
             margin: 0;
             font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
         }
-
-        .boot-screen {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                radial-gradient(circle at 50% 35%, rgba(16, 68, 42, 0.22), transparent 60%),
-                #030509;
-            padding: 16px;
-        }
-
-        .boot-screen::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0) 0px,
-                rgba(255, 255, 255, 0) 2px,
-                rgba(0, 0, 0, 0.28) 3px
-            );
-            pointer-events: none;
-        }
-
-        .boot-terminal {
-            width: min(620px, 94vw);
-            background: rgba(7, 11, 18, 0.94);
-            border: 1px solid rgba(255, 215, 0, 0.35);
-            border-radius: 8px;
-            box-shadow:
-                0 0 32px rgba(0, 255, 136, 0.08),
-                0 0 64px rgba(255, 215, 0, 0.08);
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-        }
-
-        .boot-titlebar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            background: rgba(255, 215, 0, 0.07);
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-            font-size: 12px;
-            color: #ffd700;
-            letter-spacing: 0.04em;
-        }
-
-        .boot-dots {
-            display: flex;
-            gap: 6px;
-        }
-
-        .boot-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .boot-dot.red { background: #ff5f56; }
-        .boot-dot.yellow { background: #ffbd2e; }
-        .boot-dot.green { background: #27c93f; }
-
-        .boot-body {
-            padding: 20px 22px 22px;
-            font-size: clamp(11px, 2.2vw, 13.5px);
-            line-height: 1.55;
-        }
-
-        .boot-ascii {
-            text-align: center;
-            margin: 0 0 18px;
-            font-size: clamp(12px, 2.6vw, 15px);
-            line-height: 1.25;
-            white-space: pre;
-            text-shadow: 0 0 10px rgba(46, 204, 113, 0.35);
-        }
-
-        .c-gold { color: #ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.7); }
-        .c-green { color: #2ecc71; }
-        .c-red { color: #ff4d6d; }
-        .c-cyan { color: #00e5ff; }
-        .c-wood { color: #a47148; }
-        .c-dim { color: #6e7b8b; }
-
-        .boot-logs {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 18px;
-        }
-
-        .boot-line {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            opacity: 0;
-            animation: bootFadeIn 0.35s ease forwards;
-        }
-
-        .boot-line:nth-child(1) { animation-delay: 0.05s; }
-        .boot-line:nth-child(2) { animation-delay: 0.3s; }
-        .boot-line:nth-child(3) { animation-delay: 0.55s; }
-        .boot-line:nth-child(4) { animation-delay: 0.8s; }
-
-        .boot-ok {
-            color: #2ecc71;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .boot-progress-wrap {
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            background: rgba(255, 255, 255, 0.03);
-            height: 14px;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-
-        .boot-progress-bar {
-            height: 100%;
-            width: 38%;
-            background: linear-gradient(90deg, #2ecc71, #ffd700, #2ecc71);
-            background-size: 200% 100%;
-            animation: bootSlide 1.4s ease-in-out infinite;
-            box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
-        }
-
-        .boot-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #8b9bb4;
-            font-size: 12px;
-        }
-
-        .boot-cursor {
-            display: inline-block;
-            width: 8px;
-            height: 14px;
-            background: #ffd700;
-            vertical-align: middle;
-            margin-left: 4px;
-            animation: blink 0.9s steps(1) infinite;
-        }
-
-        @keyframes bootFadeIn {
-            from { opacity: 0; transform: translateY(3px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes bootSlide {
-            0% { transform: translateX(-110%); }
-            100% { transform: translateX(370%); }
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
     </style>
 </head>
 
 <body>
     <div id="app">
-        <div class="boot-screen">
-            <div class="boot-terminal">
-                <div class="boot-titlebar">
-                    <div class="boot-dots">
-                        <span class="boot-dot red"></span>
-                        <span class="boot-dot yellow"></span>
-                        <span class="boot-dot green"></span>
+        <div class="console-intro">
+            <div class="console-window">
+                <div class="console-titlebar">
+                    <div class="console-dots">
+                        <span class="console-dot red"></span>
+                        <span class="console-dot yellow"></span>
+                        <span class="console-dot green"></span>
                     </div>
-                    <span>MERRY_CHRISTMAS_TREE.EXE — BOOTLOADER</span>
-                    <span class="c-dim">.NET 10</span>
+                    <span>northpole-shell — bash</span>
+                    <span></span>
                 </div>
-                <div class="boot-body">
-                    <pre class="boot-ascii"><span class="c-gold">        ★</span>
-<span class="c-green">       /|\</span>
-<span class="c-green">      /</span><span class="c-red">o</span><span class="c-green">|</span><span class="c-cyan">*</span><span class="c-green">\</span>
-<span class="c-green">     /*|</span><span class="c-gold">o</span><span class="c-green">**\</span>
-<span class="c-green">    /</span><span class="c-cyan">o</span><span class="c-green">**|</span><span class="c-red">o</span><span class="c-green">**\</span>
-<span class="c-green">   /*****</span><span class="c-gold">*</span><span class="c-green">**\</span>
-<span class="c-wood">      |___|</span></pre>
-
-                    <div class="boot-logs">
-                        <div class="boot-line">
-                            <span><span class="c-gold">&gt;</span> Initializing .NET WebAssembly runtime...</span>
-                            <span class="boot-ok">[ OK ]</span>
+                <div class="console-body">
+                    <div>
+                        <div class="console-prompt-line">
+                            <span class="console-user">santa@northpole</span><span>:</span><span class="console-path">~/tree</span><span>$</span>
+                            <span class="console-cursor"></span>
                         </div>
-                        <div class="boot-line">
-                            <span><span class="c-gold">&gt;</span> Mounting ASCII terminal framebuffer...</span>
-                            <span class="boot-ok">[ OK ]</span>
-                        </div>
-                        <div class="boot-line">
-                            <span><span class="c-gold">&gt;</span> Loading snow physics &amp; wind simulation...</span>
-                            <span class="boot-ok">[ OK ]</span>
-                        </div>
-                        <div class="boot-line">
-                            <span><span class="c-gold">&gt;</span> Preparing audio: Last Christmas.mp3...</span>
-                            <span class="c-cyan">[ WAIT ]</span>
-                        </div>
-                    </div>
-
-                    <div class="boot-progress-wrap">
-                        <div class="boot-progress-bar"></div>
-                    </div>
-
-                    <div class="boot-footer">
-                        <span>Запуск консоли...<span class="boot-cursor"></span></span>
-                        <span class="c-dim">[M] Музыка · [C] CRT · [H] HUD</span>
                     </div>
                 </div>
             </div>
@@ -244,7 +51,7 @@
         <span class="dismiss">🗙</span>
     </div>
 
-    <script src="js/treeTerminal.js"></script>
+    <script src="js/treeTerminal.js?v=4"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
 
