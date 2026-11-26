@@ -14,17 +14,63 @@
     <!-- Canvas fills 100% of the browser window area -->
     <canvas id="treeCanvas" @ref="_canvasRef"></canvas>
 
+    @if (_isConsoleIntroActive)
+    {
+        <div class="console-intro @(_isFadingOut ? "fading-out" : "")" @onclick="SkipConsoleIntro">
+            <div class="console-window">
+                <div class="console-titlebar">
+                    <div class="console-dots">
+                        <span class="console-dot red"></span>
+                        <span class="console-dot yellow"></span>
+                        <span class="console-dot green"></span>
+                    </div>
+                    <span>northpole-shell — bash</span>
+                    <span>80×24</span>
+                </div>
+                <div class="console-body">
+                    <div>
+                        <div class="console-prompt-line">
+                            <span class="console-user">santa@northpole</span><span>:</span><span class="console-path">~/tree</span><span>$</span>
+                            <span class="console-cmd">@_typedCommand</span>@if (!_commandSubmitted) {<span class="console-cursor"></span>}
+                        </div>
+
+                        @if (_commandSubmitted)
+                        {
+                            <div class="console-output">
+                                <div><span class="console-ok">[OK]</span> Initializing festive ASCII renderer...</div>
+                                @if (_showSecondLog)
+                                {
+                                    <div><span class="console-ok">[OK]</span> Starting MerryChristmasTree.Web... <span class="console-cursor"></span></div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="console-hint">Нажмите Enter или кликните, чтобы пропустить</div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Hidden native audio element -->
     <audio id="bg-audio" loop src="Wham_Last_Christmas.mp3" preload="auto" @ref="_audioRef"></audio>
 </div>
 
 @code {
+    private const string IntroCommand = "run christmas";
+
     private ElementReference _canvasRef;
     private ElementReference _audioRef;
     private DotNetObjectReference<Home>? _dotNetRef;
     private readonly TreeEngine _engine = new();
+    private CancellationTokenSource? _introCts;
 
     private bool _isCrtActive = false;
+    private bool _isConsoleIntroActive = true;
+    private bool _isFadingOut = false;
+    private bool _commandSubmitted = false;
+    private bool _showSecondLog = false;
+    private string _typedCommand = "";
 
     protected override void OnInitialized()
     {
@@ -41,12 +87,81 @@
                 _canvasRef,
                 _audioRef,
                 _dotNetRef);
+
+            _introCts = new CancellationTokenSource();
+            _ = RunConsoleIntroAsync(_introCts.Token);
         }
     }
 
-    [JSInvokable]
-    public byte[] OnFrame(float dt, int width, int height)
+    private async Task RunConsoleIntroAsync(CancellationToken ct)
     {
+        try
+        {
+            await Task.Delay(250, ct);
+
+            for (int i = 1; i <= IntroCommand.Length; i++)
+            {
+                _typedCommand = IntroCommand[..i];
+                StateHasChanged();
+                await Task.Delay(75, ct);
+            }
+
+            await Task.Delay(260, ct);
+            _commandSubmitted = true;
+            StateHasChanged();
+
+            await Task.Delay(420, ct);
+            _showSecondLog = true;
+            StateHasChanged();
+
+            await Task.Delay(550, ct);
+            await FinishConsoleIntroAsync(ct);
+        }
+        catch (TaskCanceledException)
+        {
+            // Intro was skipped or component disposed
+        }
+    }
+
+    private async Task FinishConsoleIntroAsync(CancellationToken ct = default)
+    {
+        if (!_isConsoleIntroActive || _isFadingOut)
+            return;
+
+        _isFadingOut = true;
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(260, ct);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
+
+        _isConsoleIntroActive = false;
+        _isFadingOut = false;
+        StateHasChanged();
+    }
+
+    private void SkipConsoleIntro()
+    {
+        if (!_isConsoleIntroActive)
+            return;
+
+        _introCts?.Cancel();
+        _isConsoleIntroActive = false;
+        _isFadingOut = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public byte[]? OnFrame(float dt, int width, int height)
+    {
+        if (_isConsoleIntroActive)
+            return null;
+
         return _engine.Tick(dt, width, height);
     }
 
@@ -96,6 +211,12 @@
 
     private void HandleKeyDown(KeyboardEventArgs e)
     {
+        if (_isConsoleIntroActive && e.Key is "Enter" or " ")
+        {
+            SkipConsoleIntro();
+            return;
+        }
+
         switch (e.Key.ToLowerInvariant())
         {
             case " ":
@@ -140,6 +261,8 @@
 
     public void Dispose()
     {
+        _introCts?.Cancel();
+        _introCts?.Dispose();
         _dotNetRef?.Dispose();
     }
 }
